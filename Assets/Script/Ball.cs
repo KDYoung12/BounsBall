@@ -8,13 +8,16 @@ public class Ball : MonoBehaviour
     public float jumpPower;
     public float speed;
     public int jumpCount;
-    public int starCount;
+    public int moveCount;
+    private int starCount;
 
     bool isJump;
+    bool isMove;
     public Transform star;
     void Awake()
     {
         isJump = false;
+        isMove = false;
         starCount = 0;    
     }
     void Update()
@@ -28,7 +31,7 @@ public class Ball : MonoBehaviour
         {
             SceneManager.LoadScene(1);
         }
-        if(Input.GetKeyDown(KeyCode.Space) && isJump)
+        if(Input.GetKeyDown(KeyCode.Space) && isJump && !isMove)
         {
             jumpCount++;
         }
@@ -36,9 +39,29 @@ public class Ball : MonoBehaviour
         {
             Rigidbody2D rigid = GetComponent<Rigidbody2D>();
 
-            rigid.AddForce(new Vector2(0, jumpPower * 2), ForceMode2D.Impulse);
+            rigid.AddForce(new Vector2(0, jumpPower * 1.2f), ForceMode2D.Impulse);
 
             this.GetComponent<Renderer>().material.color = Color.yellow;
+
+            jumpCount = 0;
+            isJump = false;
+        } 
+
+        // twoMoveItem은 수정이 필요함
+        if (Input.GetKeyDown(KeyCode.M) && isMove && !isJump)
+        {
+            moveCount++;
+        }
+        if (moveCount >= 2)
+        {
+            Rigidbody2D rigid = GetComponent<Rigidbody2D>();
+
+            rigid.AddForce(new Vector2(jumpPower, 0), ForceMode2D.Impulse);
+
+            this.GetComponent<Renderer>().material.color = Color.yellow;
+
+            moveCount = 0;
+            isMove = false;
         }
     }
 
@@ -64,6 +87,12 @@ public class Ball : MonoBehaviour
         {
             this.GetComponent<Renderer>().material.color = Color.black;
             isJump = true;
+            collision.gameObject.SetActive(false);
+        }
+        if (collision.gameObject.CompareTag("twoMove"))
+        {
+            this.GetComponent<Renderer>().material.color = Color.blue;
+            isMove = true;
             collision.gameObject.SetActive(false);
         }
     }
